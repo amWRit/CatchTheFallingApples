@@ -21,6 +21,8 @@ BLUE = {0, 0, 1, 1}
 WHITE = {1, 1, 1, 1}
 CRIMSON = {220/255,20/255,60/255,1}
 CHOCOLATE = {210/255,105/255,30/255,1}
+GOLD = {255/255, 215/255, 0, 1}
+PARROT ={124/255 ,252/255, 0, 1}
 
 gameState = 'start'
 
@@ -36,7 +38,8 @@ function love.load()
 	sounds = {
 		['score'] = love.audio.newSource('sounds/score.wav', 'static'),
 		['hit'] = love.audio.newSource('sounds/hit.wav', 'static'),
-		['complete'] = love.audio.newSource('sounds/complete.wav', 'static')
+		['power'] = love.audio.newSource('sounds/power.wav', 'static'),
+		['bomb'] = love.audio.newSource('sounds/bomb.wav', 'static'),
 	}
 
 	push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
@@ -47,11 +50,13 @@ function love.load()
 
   bowl = Bowl(VIRTUAL_WIDTH/2 - 10, VIRTUAL_HEIGHT - 16 , 20, 12)
 
-  apple1 = Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
-  apple2 =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
-  apple3 =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
+  apple1 = Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8, 'apple')
+  apple2 =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8, 'apple')
+  apple3 =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8, 'apple')
+  bomb =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8, 'bomb')
+  power =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8, 'power')
 
-  apples = {apple1, apple2, apple3}
+  apples = {apple1, apple2, apple3, bomb, power}
 
 end
 
@@ -89,6 +94,8 @@ function love.update(dt)
 	apple1.dy = APPLE_SPEED
 	apple2.dy = APPLE_SPEED - 20
 	apple3.dy = APPLE_SPEED - 40
+	bomb.dy = APPLE_SPEED - 20
+	power.dy = APPLE_SPEED
 
 	if gameState == 'play' then
 		-- apple hit bottom
@@ -121,7 +128,15 @@ function love.update(dt)
 			if apple:collides(bowl) then 
 				sounds['score']:play()
 				apple:reset()
-				SCORE = SCORE + 1
+				if apple.character == 'bomb' then
+					sounds['bomb']:play()
+					gameState = 'done'
+				elseif apple.character == 'power' then
+					SCORE = SCORE + 5
+					sounds['power']:play()
+				else 
+					SCORE = SCORE + 1
+				end
 			end
 			apple:update(dt)
 		end
@@ -155,8 +170,10 @@ function love.draw()
 			apples[i]:render()
 		end
 	elseif gameState == 'done' then
+		love.graphics.setFont(mediumFont)
+		love.graphics.printf('GAME OVER!', 0, 50, VIRTUAL_WIDTH, 'center')
 		love.graphics.setFont(smallFont)
-		love.graphics.printf('Press ENTER to restart!', 0, 50, VIRTUAL_WIDTH, 'center')
+		love.graphics.printf('_Press ENTER to restart_', 0, 75, VIRTUAL_WIDTH, 'center')
 	end
 
 	bowl:render()
