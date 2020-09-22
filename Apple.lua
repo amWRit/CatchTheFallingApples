@@ -9,9 +9,10 @@ function Apple:init(x, y, width, height)
 	self.dy = 0
 end
 
---function Apple:reset()
-
---end
+function Apple:reset()
+	apple.y = 0
+	apple.x = math.random(0, VIRTUAL_WIDTH)
+end
 
 function Apple:update(dt)
 	self.y = self.y + self.dy * dt

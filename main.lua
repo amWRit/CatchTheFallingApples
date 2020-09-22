@@ -15,11 +15,14 @@ APPLE_SPEED = 100
 
 SCORE = 0
 
-BACKGROUND = {240/255, 248/255, 255/255, 255/255}
+--BACKGROUND = {240/255, 248/255, 255/255, 255/255}
+BACKGROUND = {176/255,196/255,222/255,1}
 BLUE = {0, 0, 1, 1}
 WHITE = {1, 1, 1, 1}
 CRIMSON = {220/255,20/255,60/255,1}
 CHOCOLATE = {210/255,105/255,30/255,1}
+
+gameState = 'start'
 
 
 function love.load()
@@ -29,6 +32,12 @@ function love.load()
 	smallFont = love.graphics.newFont('font.ttf', 8)
 	mediumFont = love.graphics.newFont('font.ttf', 16)
 	largeFont = love.graphics.newFont('font.ttf', 32)
+
+	sounds = {
+		['score'] = love.audio.newSource('sounds/score.wav', 'static'),
+		['hit'] = love.audio.newSource('sounds/hit.wav', 'static'),
+		['complete'] = love.audio.newSource('sounds/complete.wav', 'static')
+	}
 
 	push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
 		fullscreen = false,
@@ -46,6 +55,15 @@ function love.keypressed(key)
 	-- body
 	if key == 'escape' then
 		love.event.quit()
+	elseif key == 'enter' or key == 'return' then
+		if gameState == 'pause' or gameState == 'start' then
+			gameState = 'play'
+		elseif gameState == 'play' then
+			gameState = 'pause'
+		elseif gameState == 'done' then
+			gameState = 'play'
+			--reset
+		end
 	end
 end
 
@@ -66,7 +84,22 @@ function love.update(dt)
 	end
 	apple.dy = APPLE_SPEED
 
-	apple:update(dt)
+	if gameState == 'play' then
+		-- apple hit bottom
+		if apple:reachBottom() then 
+			sounds['hit']:play()
+			apple:reset()
+			SCORE = SCORE - 1
+		end
+
+		-- apple caught by the bowl
+		if apple:collides(bowl) then 
+			sounds['score']:play()
+			apple:reset()
+			SCORE = SCORE + 1
+		end
+		apple:update(dt)
+	end
 
 end
 
@@ -78,22 +111,25 @@ function love.draw()
 	love.graphics.clear(BACKGROUND)
 
 	love.graphics.setFont(smallFont)
+	love.graphics.setColor(BLUE)
 	--love.graphics.printf({BLUE, 'WELCOME!'}, 0, VIRTUAL_HEIGHT/2-32, VIRTUAL_WIDTH, 'center')
 
 	love.graphics.printf({BLUE, 'SCORE: ' .. tostring(SCORE)}, -10, 10, VIRTUAL_WIDTH, 'right')
 
-	if apple:reachBottom() then 
-		apple.y = 0
-		apple.x = math.random(0, VIRTUAL_WIDTH)
-		SCORE = SCORE - 1
-	end
+	
 
-	if apple:collides(bowl) then 
-		apple.y = 0
-		apple.x = math.random(0, VIRTUAL_WIDTH)
-		SCORE = SCORE + 1
+	if gameState == 'start' then
+		love.graphics.setFont(smallFont)
+		love.graphics.printf('Press ENTER to begin!', 0, 0, VIRTUAL_WIDTH, 'center')
+	elseif gameState == 'pause' then
+		love.graphics.setFont(smallFont)
+		love.graphics.printf('Game PAUSED! Press ENTER to start!', 0, 0, VIRTUAL_WIDTH, 'center')
+	elseif gameState == 'play' then
+		--
+	elseif gameState == 'done' then
+		love.graphics.setFont(smallFont)
+		love.graphics.printf('Press ENTER to restart!', 0, 50, VIRTUAL_WIDTH, 'center')
 	end
-
 
 	bowl:render()
 	apple:render()
