@@ -11,7 +11,7 @@ VIRTUAL_HEIGHT = 243
 VIRTUAL_WIDTH = 433
 
 BOWL_SPEED = 200
-APPLE_SPEED = 100
+APPLE_SPEED = 80
 
 SCORE = 0
 
@@ -47,7 +47,11 @@ function love.load()
 
   bowl = Bowl(VIRTUAL_WIDTH/2 - 10, VIRTUAL_HEIGHT - 16 , 20, 12)
 
-  apple = Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
+  apple1 = Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
+  apple2 =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
+  apple3 =  Apple(math.random(0, VIRTUAL_WIDTH), 0, 8, 8)
+
+  apples = {apple1, apple2, apple3}
 
 end
 
@@ -82,23 +86,45 @@ function love.update(dt)
 		bowl.dx = BOWL_SPEED
 		bowl:update(dt)
 	end
-	apple.dy = APPLE_SPEED
+	apple1.dy = APPLE_SPEED
+	apple2.dy = APPLE_SPEED - 20
+	apple3.dy = APPLE_SPEED - 40
 
 	if gameState == 'play' then
 		-- apple hit bottom
-		if apple:reachBottom() then 
+		--[[
+		if apple1:reachBottom() then 
 			sounds['hit']:play()
-			apple:reset()
+			apple1:reset()
 			SCORE = SCORE - 1
 		end
 
 		-- apple caught by the bowl
-		if apple:collides(bowl) then 
+		if apple1:collides(bowl) then 
 			sounds['score']:play()
-			apple:reset()
+			apple1:reset()
 			SCORE = SCORE + 1
 		end
-		apple:update(dt)
+		apple1:update(dt)
+		apple2:update(dt)
+		]]--
+
+		for i=1, #apples do
+			apple = apples[i]
+			if apple:reachBottom() then 
+				sounds['hit']:play()
+				apple:reset()
+				SCORE = SCORE - 1
+			end
+
+			-- apple caught by the bowl
+			if apple:collides(bowl) then 
+				sounds['score']:play()
+				apple:reset()
+				SCORE = SCORE + 1
+			end
+			apple:update(dt)
+		end
 	end
 
 end
@@ -125,14 +151,19 @@ function love.draw()
 		love.graphics.setFont(smallFont)
 		love.graphics.printf('Game PAUSED! Press ENTER to start!', 0, 0, VIRTUAL_WIDTH, 'center')
 	elseif gameState == 'play' then
-		--
+		for i=1, #apples do
+			apples[i]:render()
+		end
 	elseif gameState == 'done' then
 		love.graphics.setFont(smallFont)
 		love.graphics.printf('Press ENTER to restart!', 0, 50, VIRTUAL_WIDTH, 'center')
 	end
 
 	bowl:render()
-	apple:render()
+	--apple1:render()
+	--apple2:render()
+
+
 
 	push:apply('end')
 end

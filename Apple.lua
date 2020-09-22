@@ -10,8 +10,8 @@ function Apple:init(x, y, width, height)
 end
 
 function Apple:reset()
-	apple.y = 0
-	apple.x = math.random(0, VIRTUAL_WIDTH)
+	self.y = 0
+	self.x = math.random(0, VIRTUAL_WIDTH)
 end
 
 function Apple:update(dt)
