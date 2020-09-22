@@ -1,8 +1,6 @@
 push = require 'push'
 Class = require 'class'
 
-require 'Bowl'
-
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 1280
 
@@ -16,6 +14,7 @@ BLUE = {0, 0, 1, 1}
 WHITE = {1, 1, 1, 1}
 CRIMSON = {220/255,20/255,60/255,1}
 CHOCOLATE = {210/255,105/255,30/255,1}
+
 
 function love.load()
 	love.graphics.setDefaultFilter('nearest', 'nearest')
@@ -31,7 +30,8 @@ function love.load()
 		vsync = true
 	})
 
-	bowl = Bowl(VIRTUAL_WIDTH/2 - 10, VIRTUAL_HEIGHT - 16 , 20, 12)
+  bowl = Bowl(VIRTUAL_WIDTH/2 - 10, VIRTUAL_HEIGHT - 16 , 20, 12)
+
 end
 
 function love.keypressed(key)
@@ -48,6 +48,7 @@ end
 
 function love.update(dt)
 	-- body
+
 	if love.keyboard.isDown('left') then
 		bowl.dx = -BOWL_SPEED
 		bowl:update(dt)
@@ -56,17 +57,19 @@ function love.update(dt)
 		bowl:update(dt)
 	end
 
-	
 end
 
 function love.draw()
 	-- body
 	push:apply('start')
 
+
 	love.graphics.clear(BACKGROUND)
+
 
 	love.graphics.setFont(largeFont)
 	love.graphics.printf({BLUE, 'WELCOME!'}, 0, VIRTUAL_HEIGHT/2-32, VIRTUAL_WIDTH, 'center')
+
 
 	bowl:render()
 
